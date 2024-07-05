@@ -1,0 +1,17 @@
+{
+  "name": "conexionmongo",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node --watch main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongo": "^0.1.0",
+    "mongodb": "^6.8.0"
+  }
+}
