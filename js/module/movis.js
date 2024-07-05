@@ -16,147 +16,150 @@ export class Movis extends connect {
     }
 
     async getAllMovis() {
-        try {
-            let res = await this.collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $project: { _id: 0, name: 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMovieGenreAccion() {
-        try {
-            let res = await this.collection.find({ genre: { $elemMatch: { $eq: "Accion" } } }, { projection: { _id: 0, name: 1, genre: 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { genre: { $elemMatch: { $eq: "Accion" } } } },
+            { $project: { _id: 0, name: 1, genre: 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMovieFormatBlurayMoreThanTwoHundred() {
-        try {
-            let res = await this.collection.find({ "format.name": "Bluray", "format.copies": { $gt: 200 } }, { projection: {_id: 0, name: 1, "format.name": 1, "format.copies": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $unwind: '$format' },
+            { $match: { 'format.name': 'Bluray', 'format.copies': { $gt: 200 } } },
+            { $project: { name: 1, 'format.name': 1, 'format.copies': 1, _id: 0 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesFormatDVDLessThanTen() {
-        try {
-            let res = await this.collection.find({ "format": { $elemMatch: { name: 'dvd', value: { $lt: 10 } } } }, { projection: { _id: 0, name: 1, 'format.name': 1, 'format.value': 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $unwind: '$format' },
+            { $match: { 'format.name': 'dvd', 'format.value': { $lt: 10 } } },
+            { $project: { _id: 0, name: 1, 'format.name': 1, 'format.value': 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesActorCobb() {
-        try {
-            let res = await this.collection.find({ "character": { $elemMatch: { "apodo": "Cobb" } } }, { projection: { _id: 0, name: 1, "character": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "character.apodo": "Cobb" } },
+            { $project: { _id: 0, name: 1, "character": 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesIdActorTwoAndThree() {
-        try {
-            let res = await this.collection.find({ "character.id_actor": { $in: [2, 3] } }, { projection: { _id: 0, name: 1, character: 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "character.id_actor": { $in: [2, 3] } } },
+            { $project: { _id: 0, name: 1, character: 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithFormatBluray() {
-        try {
-            let res = await this.collection.find({ "format.name": "Bluray" }, { projection: { _id: 0, name: 1, "format.name": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "format.name": "Bluray" } },
+            { $project: { _id: 0, name: 1, "format.name": 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesGenreCienciaFiccion() {
-        try {
-            let res = await this.collection.find({ genre: { $elemMatch: { $eq: "Ciencia Ficción" } } }, { projection: { _id: 0, name: 1, genre: 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { genre: { $elemMatch: { $eq: "Ciencia Ficción" } } } },
+            { $project: { _id: 0, name: 1, genre: 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithPrincipalRolMiguel() {
-        try {
-            let res = await this.collection.find({ "character": { $elemMatch: { "rol": "principal", "apodo": "Miguel" } } }, { projection: { _id: 0, name: 1, "character": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "character": { $elemMatch: { "rol": "principal", "apodo": "Miguel" } } } },
+            { $project: { _id: 0, name: 1, "character": 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithFormatLessThanOneHundred() {
-        try {
-            let res = await this.collection.find({ "format.copies": { $gte: 100 } }, { projection: { _id: 0, name: 1, format: 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "format.copies": { $gte: 100 } } },
+            { $project: { _id: 0, name: 1, format: 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithIdActorOne() {
-        try {
-            let res = await this.collection.find({ "character.id_actor": 1 }, { projection: { _id: 0, name: 1, "character": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "character.id_actor": 1 } },
+            { $project: { _id: 0, name: 1, "character": 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithPrincipalRolCobb() {
-        try {
-            let res = await this.collection.find({ "character": { $elemMatch: { "rol": "principal", "apodo": "Cobb" } } }, { projection: { _id: 0, name: 1, "character": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "character": { $elemMatch: { "rol": "principal", "apodo": "Cobb" } } } },
+            { $project: { _id: 0, name: 1, "character": 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithFormatDVDLessThanTen() {
-        try {
-            let res = await this.collection.find({ "format.name": "dvd", "format.value": { $lt: 10 } }, { projection: { _id: 0, name: 1, "format": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $unwind: '$format' },
+            { $match: { "format.name": "dvd", "format.value": { $lt: 10 } } },
+            { $project: { _id: 0, name: 1, "format": 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithSecondaryActorArthur() {
-        try {
-            let res = await this.collection.find({ "character": { $elemMatch: { "rol": "secundario", "apodo": "Arthur" } } }, { projection: { _id: 0, name: 1, "character": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "character": { $elemMatch: { "rol": "secundario", "apodo": "Arthur" } } } },
+            { $project: { _id: 0, name: 1, "character": 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithPrincipalActorMiguel() {
-        try {
-            let res = await this.collection.find({ "character": { $elemMatch: { "rol": "principal", "apodo": "Miguel" } } }, { projection: { _id: 0, name: 1, "character": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $match: { "character": { $elemMatch: { "rol": "principal", "apodo": "Miguel" } } } },
+            { $project: { _id: 0, name: 1, character: 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async getMoviesWithMoreThanTwoHundredCopies() {
-        try {
-            let res = await this.collection.find({ "format.name": "Bluray", "format.copies": { $gt: 200 } }, { projection: { _id: 0, name: 1, "format": 1 } }).toArray();
-            return res;
-        } finally {
-            await this.closeConnection();
-        }
+        let res = await this.collection.aggregate([
+            { $unwind: '$format' },
+            { $match: { "format.name": "Bluray", "format.copies": { $gt: 200 } } },
+            { $project: { _id: 0, name: 1, "format": 1 } }
+        ]).toArray();
+        await this.closeConnection();
+        return res;
     }
 
     async closeConnection() {
